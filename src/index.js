@@ -42,7 +42,7 @@ app.Container = Backbone.Model.extend({
     return 'ws://wot.city/object/' + this.attributes.name + '/viewer';
   },
   defaults: {
-    name: 'test',
+    name: 'testman',
     data: '',
     cid: 0
   },
