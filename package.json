@@ -1,12 +1,18 @@
 {
   "name": "theme-moving-line",
-  "version": "0.0.2",
-  "preview": ["images/preview.png"],
+  "version": "1.0.0",
+  "preview": [
+    "images/preview.png"
+  ],
+  "scripts": {
+    "start": "./node_modules/.bin/simple-server dist 3000"
+  },
   "dependencies": {
     "async": "~0.2.9",
     "automationjs": "^0.1.3",
     "html-to-vdom": "^0.3.0",
     "http-proxy": "*",
+    "simple-server": "^1.0.1",
     "virtual-dom": "0.0.23",
     "websocket": "^1.0.18"
   },

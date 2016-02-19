@@ -6,4 +6,3 @@ node_modules
 *.pid
 npm-debug.log
 cache
-vendor
