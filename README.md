@@ -2,7 +2,7 @@
 
 ## Usage
 
-The URL format is as ```index.html#&lt;DeviceID&gt;/&lt;Endpoint&gt;/&lt;Y-Axis-Key&gt;```.
+The URL format is as ```index.html<DeviceID>/<Endpoint>/<Y-Axis-Key>```.
 
 Examples:
 
