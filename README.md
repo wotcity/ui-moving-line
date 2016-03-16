@@ -14,21 +14,15 @@ Examples:
 
 ## Developer
 
-If you need to modify the source code:
+If you need to modify the source code, please run ```$ npm install``` to install dependencies before editing the code.
 
-1. Install
-
-```
-$ npm install
-```
-
-2. Modify ```src/index..js``` which is the main application
-
-3. Browserify
+Please open the main file ```src/index.js``` and modify the code. When finish it, please compile ```src/index.js``` with browserify.
 
 ```
 $ gulp apps
 ```
+
+The output file is ```dist/index.js```.
 
 ## License
 
