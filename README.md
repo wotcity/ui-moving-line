@@ -6,7 +6,7 @@ The URL format is as ```index.html#<DeviceID>/<Endpoint>/<Y-Axis-Key>```.
 
 Examples:
 
-* ```index.html#testman/wot.city``` is for testing, try it!
+* ```index.html#testman/wot.city/temperature``` is for testing, try it!
 * ```index.html#f837aab/devify.azurewebsites.net/quality```
  * **f837aab** is the device ID
  * **devify.azurewebsites.net** is the endpoint server
