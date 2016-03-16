@@ -1,7 +1,7 @@
 /**
  *
- *  .CITY Starter Kit
- *  Copyright 2015 WoT.City Inc. All rights reserved.
+ *  Devify Starter Kit
+ *  Copyright 2016 Devify Platform. All rights reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -16,19 +16,20 @@
  *  limitations under the License
  *
  */
-
 'use strict';
-
-/**
- * Modules
- */
-var Automation = require('automationjs');
 
 /**
  * Setup
  */
 
 var app = app || {};
+
+/**
+ * Modules
+ */
+var Automation = require('automationjs');
+var Backbone = require('backbone');
+var _ = require('underscore');
 
 /**
  * MODELS
@@ -39,10 +40,13 @@ app.Container = Backbone.Model.extend({
     return '/';
   },
   wsUrl: function() {
-    return 'ws://wot.city/object/' + this.attributes.name + '/viewer';
+    return 'ws://' + this.attributes.endpoint + '/object/' + this.attributes.name + '/viewer';
   },
   defaults: {
-    name: 'testman',
+    name: '',
+    endpoint: '',
+    key: '',
+
     data: '',
     cid: 0
   },
@@ -71,8 +75,10 @@ app.Container = Backbone.Model.extend({
   },
   // Y-Axis getter
   getY: function() {
-    var y = this.get('temperature');
-    return (typeof(y) === 'undefined') ? 0 : y;
+    var key = this.get('key');
+    var y = this.get(key);
+
+    return (typeof y === 'undefined') ? 0 : y;
   }
 });
 
@@ -86,13 +92,42 @@ app.ContainerView = Backbone.View.extend({
   data: [],
   maximum: 0,
   series: [],
+  name: '',
+  endpoint: '',
+  key: '',
+  id: '',
   initialize: function() {
+    app.id = app.id + 1;
+    this.id = 'flot-line-chart-moving-' + app.id;
+
+    this.$el.append('<div class="flot-chart" id="' + this.id + '">');
+    this.$elm = this.$el.find('#' + this.id);
+
     this.component = new Automation({
-      el: this.$el,
+      el: this.$elm,
       model: app.Container,
       template: this.template
     });
+  },
+  render: function() {
+    var self = this;
 
+    this.model = this.component.add({
+      name: self.name,
+      endpoint: self.endpoint,
+      key: self.key
+    });
+    this.listenTo(this.model, 'sync', this.draw);
+  },
+  syncUp: function(name, endpoint, key) {
+    this.name = name || 'testman';
+    this.endpoint = endpoint || 'wot.city';
+    this.key = key || 'temperature';
+
+    this.update();
+    this.render();
+  },
+  update: function() {
     // Determine how many data points to keep based on the placeholder's initial size;
     // this gives us a nice high-res plot while avoiding more than one point per pixel.
     this.maximum = this.$el.outerWidth() / 2 || 300;
@@ -104,7 +139,7 @@ app.ContainerView = Backbone.View.extend({
     // zip the generated y values with the x values
     var res = [];
     for (var i = 0; i < this.data.length; ++i) {
-        res.push([i, this.data[i]])
+        res.push([i, this.data[i]]);
     }
 
     this.series = [{
@@ -114,16 +149,16 @@ app.ContainerView = Backbone.View.extend({
         }
     }];
 
-    this.plot = $.plot(this.$el, this.series, {
+    this.plot = $.plot(this.$elm, this.series, {
       grid: {
         borderWidth: 1,
         minBorderMargin: 20,
         labelMargin: 10,
         backgroundColor: {
-          colors: ["#fff", "#e4f4f4"]
+          colors: ['#fff', '#e4f4f4']
         },
         margin: {
-          top: 8,
+          top: 38,
           bottom: 20,
           left: 20
         },
@@ -136,7 +171,7 @@ app.ContainerView = Backbone.View.extend({
                 from: x,
                 to: x + xaxis.tickSize
               },
-              color: "rgba(232, 232, 255, 0.2)"
+              color: 'rgba(232, 232, 255, 0.2)'
             });
           }
           return markings;
@@ -144,7 +179,7 @@ app.ContainerView = Backbone.View.extend({
       },
       xaxis: {
         tickFormatter: function() {
-          return "";
+          return '';
         }
       },
       yaxis: {
@@ -156,16 +191,8 @@ app.ContainerView = Backbone.View.extend({
       }
     });
   },
-  render: function(name) {
-    this.model = this.component.add({
-      name: name
-    });
-    this.listenTo(this.model, 'sync', this.update);
-  },
-  syncUp: function(name) {
-    this.render(name);
-  },
-  update: function() {
+  draw: function() {
+    // get data
     var y = this.model.getY();
     this.data.push(y);
 
@@ -176,13 +203,11 @@ app.ContainerView = Backbone.View.extend({
     // zip the generated y values with the x values
     var res = [];
     for (var i = 0; i < this.data.length; ++i) {
-        res.push([i, this.data[i]])
+        res.push([i, this.data[i]]);
     }
 
     this.series[0].data = res;
-    this.draw();
-  },
-  draw: function() {
+
     this.plot.setData(this.series);
     this.plot.draw();
   }
@@ -194,11 +219,21 @@ app.ContainerView = Backbone.View.extend({
 
 app.AppRoutes = Backbone.Router.extend({
   routes: {
-    ':name': 'appByName'
+    ':name': 'app',
+    ':name/:endpoint': 'app2',
+    ':name/:endpoint/:key': 'app3'
   },
-  appByName: function(name) {
+  app: function(name) {
     app.containerView = new app.ContainerView();
     app.containerView.syncUp(name);
+  },
+  app2: function(name, endpoint) {
+    app.containerView = new app.ContainerView();
+    app.containerView.syncUp(name, endpoint);
+  },
+  app3: function(name, endpoint, key) {
+    app.containerView = new app.ContainerView();
+    app.containerView.syncUp(name, endpoint, key);
   }
 });
 
@@ -207,6 +242,7 @@ app.AppRoutes = Backbone.Router.extend({
  **/
 
 $(function() {
+  app.id = 0;
   app.appRoutes = new app.AppRoutes();
   Backbone.history.start();
 });
