@@ -2,7 +2,7 @@
 
 ## Usage
 
-```index.html#<DeviceID>/<Endpoint>/<Y-Axis-Key>```
+```index.html#&lt;DeviceID&gt;/&lt;Endpoint&gt;/&lt;Y-Axis-Key&gt;```
 
 Examples:
 
